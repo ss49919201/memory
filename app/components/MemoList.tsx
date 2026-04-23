@@ -6,6 +6,7 @@ import { createMemoAction, updateMemoAction, deleteMemoAction } from '../actions
 
 export default function MemoList({ initialMemos }: { initialMemos: Memo[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const createRef = useRef<HTMLTextAreaElement>(null);
   const editRef = useRef<HTMLTextAreaElement>(null);
@@ -29,6 +30,13 @@ export default function MemoList({ initialMemos }: { initialMemos: Memo[] }) {
       e.preventDefault();
       e.currentTarget.form?.requestSubmit();
     }
+  }
+
+  function handleCopy(id: string, content: string) {
+    navigator.clipboard.writeText(content).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 1500);
+    });
   }
 
   function handleDelete(id: string) {
@@ -109,6 +117,12 @@ export default function MemoList({ initialMemos }: { initialMemos: Memo[] }) {
                     {new Date(memo.updatedAt).toLocaleString('ja-JP')}
                   </span>
                   <div className="flex gap-2">
+                    <button
+                      onClick={() => handleCopy(memo.id, memo.content)}
+                      className="text-xs px-3 py-1 rounded-md border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:border-zinc-400 transition-colors"
+                    >
+                      {copiedId === memo.id ? 'コピー済み' : 'コピー'}
+                    </button>
                     <button
                       onClick={() => setEditingId(memo.id)}
                       className="text-xs px-3 py-1 rounded-md border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:border-zinc-400 transition-colors"
